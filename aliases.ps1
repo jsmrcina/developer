@@ -22,3 +22,6 @@ Function Add-PathVariable {
 
 ## Sublime
 Add-PathVariable "C:\Program Files\Sublime Text 3"
+
+## Global variables
+$global:developer_dir = Split-Path $MyInvocation.MyCommand.Path

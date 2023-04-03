@@ -1,8 +1,8 @@
 # Source all the files under $developerFolderPath
 
 param(
-[string]$developerFolderPath = "C:\Users\jsmrc\Documents\Git\developer",
-[string]$gitFolderPath = "C:\Users\jsmrc\Documents\Git")
+[string]$developerFolderPath = "I:\Documents\Git\developer",
+[string]$gitFolderPath = "I:\Documents\Git")
 
 # Make available to other scripts
 $global:gitFolderPath = $gitFolderPath
