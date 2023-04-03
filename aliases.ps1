@@ -25,3 +25,6 @@ Add-PathVariable "C:\Program Files\Sublime Text 3"
 
 ## Global variables
 $global:developer_dir = Split-Path $MyInvocation.MyCommand.Path
+
+## Make sure git is using Windows OpenSSH
+git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
