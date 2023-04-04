@@ -2,6 +2,12 @@
 
 function global:cloneall()
 {
+    if ((Get-Command "gh.exe" -ErrorAction SilentlyContinue) -eq $null) 
+    { 
+        Write-Host "Unable to find gh.exe in your PATH, go to https://cli.github.com/ to download"
+        return
+    }
+
     gh auth status
 
     if($LASTEXITCODE -ne 0)
