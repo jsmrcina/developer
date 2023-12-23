@@ -12,10 +12,11 @@ Function Add-PathVariable {
     }
     else
     {
+        Write-Host $addPath 
         Throw "'$addPath' is not a valid path."
     }
 }
 
 ## Sublime
 ## TODO: Move path to non-checked in config file
-Add-PathVariable "C:\Program Files\Sublime Text 3"
+Add-PathVariable $sublimePath

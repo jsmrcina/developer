@@ -1,12 +1,5 @@
-# Source all the files under $developerFolderPath
-
-# TODO: Move to non-checked in file
-param(
-[string]$developerFolderPath = "C:\Users\jsmrc\Documents\git\developer",
-[string]$gitFolderPath = "C:\Users\jsmrc\Documents\git")
-
-# Make available to other scripts
-$global:gitFolderPath = $gitFolderPath
+# Read configuration file (requires to be in the same directory as this one)
+. .\read_json.ps1
 
 # Run other config scripts
 . $developerFolderPath\aliases.ps1
