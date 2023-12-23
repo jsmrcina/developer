@@ -1,5 +1,5 @@
 # Read the JSON file content
-$jsonContent = Get-Content -Path "config.json" | Out-String
+$jsonContent = Get-Content -Path "$PSScriptRoot\config.json" | Out-String
 
 # Parse the JSON content
 $jsonObject = ConvertFrom-Json -InputObject $jsonContent

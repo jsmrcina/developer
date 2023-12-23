@@ -1,5 +1,5 @@
 # Read configuration file (requires to be in the same directory as this one)
-. .\read_json.ps1
+. $PSScriptRoot\read_json.ps1
 
 # Run other config scripts
 . $developerFolderPath\aliases.ps1
