@@ -7,8 +7,8 @@ Function Add-PathVariable {
     if (Test-Path $addPath)
     {
         $regexAddPath = [regex]::Escape($addPath)
-        $arrPath = $env:Path -split ';' | Where-Object {$_ -notMatch "^$regexAddPath\\?"}
-        $env:Path = ($arrPath + $addPath) -join ';'
+        $arrPath = $ENV:PATH -split $pathSep | Where-Object {$_ -notMatch "^$regexAddPath\\?"}
+        $ENV:PATH = ($arrPath + $addPath) -join $pathSep
     }
 }
 
@@ -16,3 +16,5 @@ Function Add-PathVariable {
 ## TODO: Move path to non-checked in config file
 Add-PathVariable $sublimePath
 Add-PathVariable $githubClPath
+Add-PathVariable $godotPath
+Add-PathVariable $dotnetPath

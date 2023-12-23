@@ -1,5 +1,9 @@
 {
+    "pathSep": ":",
     "developerFolderPath": "/home/jsmrcina/git/developer",
     "gitFolderPath": "/home/jsmrcina/git",
-    "sublimePath": "/usr/bin/subl"
+    "sublimePath": "/usr/bin/subl",
+    "githubClPath": "/usr/bin/gh",
+    "godotPath": "/usr/bin/Godot_v4.2.1-stable_linux.x86_64",
+    "dotnetPath": "/home/jsmrcina/.dotnet"
 }
