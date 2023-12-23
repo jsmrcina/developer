@@ -1,5 +1,6 @@
 {
     "developerFolderPath": "/home/jsmrcina/git/developer",
     "gitFolderPath": "/home/jsmrcina/git",
-    "sublimePath": "/usr/bin/subl"
+    "sublimePath": "/usr/bin/subl",
+    "githubClPath": "/usr/bin/gh"
 }

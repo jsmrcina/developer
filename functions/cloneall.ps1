@@ -2,9 +2,9 @@
 
 function global:cloneall()
 {
-    if ((Get-Command "gh.exe" -ErrorAction SilentlyContinue) -eq $null) 
+    if ((Get-Command "gh" -ErrorAction SilentlyContinue) -eq $null) 
     { 
-        Write-Host "Unable to find gh.exe in your PATH, go to https://cli.github.com/ to download"
+        Write-Host "Unable to find gh in your PATH, go to https://cli.github.com/ to download"
         return
     }
 
