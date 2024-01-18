@@ -1,3 +1,4 @@
+# Clones all repositories for a specific user into the current folder
 # Make sure you have ghcli installed: https://cli.github.com/ and have run "gh auth login" once
 
 function global:cloneall()

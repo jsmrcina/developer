@@ -1,4 +1,6 @@
-# General
+This repository is a set of developer scripts used in Windows and Linux for making development using VS Code and Visual Studio simpler.
+
+# Windows
 
 To source these on powershell start, simply run the following commands:
 
@@ -14,6 +16,3 @@ To source these on powershell start, simply run the following commands:
     ` e.g. C:\Users\jsmrc\Documents\Git\developer\source.ps1>`
 
 - Save file
-
-
-

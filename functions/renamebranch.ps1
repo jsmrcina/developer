@@ -1,3 +1,5 @@
+# Renames a branch
+
 function global:renamebranch([string]$newBranchName)
 {
     $oldBranchName = git rev-parse --abbrev-ref HEAD

@@ -1,3 +1,5 @@
+# Checks whether a specific repository is using Git
+
 function global:checkingit([string]$owner)
 {
     gci | ForEach-Object {

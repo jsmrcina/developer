@@ -1,3 +1,5 @@
+# Creates a branch locally and remotely
+
 function global:makebranch([string]$branchName)
 {
     $fullBranchName = "$branchName"

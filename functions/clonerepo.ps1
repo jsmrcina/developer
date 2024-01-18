@@ -1,3 +1,5 @@
+# Clones a repository into a specific folder
+
 function global:clonerepo([string]$repourl)
 {
     $parts = $repourl.Split("/")
