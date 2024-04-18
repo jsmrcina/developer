@@ -74,6 +74,9 @@ try
     $SecondFilePath = New-TemporaryFile
     Copy-Item $FilePath $SecondFilePath
 
+    # Restore the file to head
+    git checkout HEAD -- $FilePath
+
     Write-Host ("Performing diff between hash {0} and {1}" -f $FirstHash, $SecondHash) -ForegroundColor Green 
 
     # Step 3: Call UnrealEditor with the diff option to compare the old file and the checked out file
