@@ -1,6 +1,7 @@
 {
     "pathSep": ";",
     "developerFolderPath": "C:\\Users\\jsmrc\\Documents\\git\\developer",
-    "gitFolderPath": "C:\\Users\\jsmrc\\Documents\\git",
-    "sublimePath": "C:\\Program Files\\Sublime Text 3"
+    "gitFolderPath": "F:\\git",
+    "sublimePath": "C:\\Program Files\\Sublime Text 3",
+    "mainBranchName": "main"
 }
