@@ -3,5 +3,6 @@
     "developerFolderPath": "C:\\Users\\jsmrc\\Documents\\git\\developer",
     "gitFolderPath": "F:\\git",
     "sublimePath": "C:\\Program Files\\Sublime Text 3",
-    "mainBranchName": "main"
+    "mainBranchName": "main",
+    "developerUnrealPath": "F:\\git\\ue4.27-plus\\Engine\\Binaries\\Win64\\UE4Editor.exe"
 }

@@ -1,8 +1,20 @@
 # Squashes the current branch into a single commit. Useful for squash merge based repositories before you rebase onto main
-function global:diffunreal([string] $ProjectPath, [string]$FilePath, [string]$FirstCommitIsh, [string]$SecondCommitIsh)
+function global:diffunreal([string] $UnrealPath, [string] $ProjectPath, [string]$FilePath, [string]$FirstCommitIsh, [string]$SecondCommitIsh)
 {
 
-if ($null -ne (git status --porcelain) -and (git status --porcelain) -ne '')
+if (-not (Get-Command "git.exe" -ErrorAction SilentlyContinue))
+{
+    Write-Error "Cannot find git.exe"
+}
+
+$output = (git status --porcelain)
+if ($LASTEXITCODE -ne 0)
+{
+    Write-Error "'git status' returned an error. Is this a git repository?"
+    git status
+    return;
+}
+elseif (-not ([string]::IsNullOrEmpty($output)))
 {
     Write-Error "There are uncommitted changes, aborting. Output of 'git status':"
     git status
@@ -16,25 +28,35 @@ else
 Write-Host "Making sure we have up-to-date commits via 'git fetch'..."
 git fetch
 
-$FirstHash = $FirstCommitIsh
-if ($null -eq $FirstCommitIsh -or '' -eq $FirstCommitIsh)
+if ([string]::IsNullOrEmpty($UnrealPath))
+{
+    $UnrealPath = $global:developerUnrealPath
+    Write-Host ("No Unreal path specified, falling back to value of global:DeveloperUnrealPath: {0}" -f $global:DeveloperUnrealPath)
+}
+else
+{
+    Write-Host ("Using Unreal path: {0}" -f $UnrealPath)
+}
+
+if ([string]::IsNullOrEmpty($FirstCommitIsh))
 {
     $FirstHash = git merge-base $global:officialBranch HEAD
     Write-Host ("Found merge-base with {0} branch at hash {1}" -f $global:officialBranch,$FirstHash)
 }
 else
 {
+    $FirstHash = $FirstCommitIsh
     Write-Host ("Using user-supplied first hash: {0}" -f $FirstHash)
 }
 
-$SecondHash = $SecondCommitIsh
-if ($null -eq $SecondCommitIsh -or '' -eq $SecondCommitIsh)
+if ([string]::IsNullOrEmpty($SecondCommitIsh))
 {
     $SecondHash = "HEAD"
     Write-Host "No second hash specified, defaulting to HEAD"
 }
 else
 {
+    $SecondHash = $SecondCommitIsh
     Write-Host ("Using user-supplied second hash: {0}" -f $SecondHash)
 }
 
@@ -56,7 +78,7 @@ try
 
     # Step 3: Call UnrealEditor with the diff option to compare the old file and the checked out file
     $Arguments = @($ProjectPath, "-diff", $FirstFilePath, $SecondFilePath)
-    Start-Process -Wait -FilePath "F:\git\ue4.27-plus\Engine\Binaries\Win64\UE4Editor.exe" -ArgumentList $Arguments
+    Start-Process -Wait -FilePath $UnrealPath -ArgumentList $Arguments
 }
 catch
 {
