@@ -31,7 +31,7 @@ git fetch
 if ([string]::IsNullOrEmpty($UnrealPath))
 {
     $UnrealPath = $global:developerUnrealPath
-    Write-Host ("No Unreal path specified, falling back to value of global:DeveloperUnrealPath: {0}" -f $global:DeveloperUnrealPath)
+    Write-Host ("No Unreal path specified, falling back to value of global:developerUnrealPath: {0}" -f $global:developerUnrealPath)
 }
 else
 {
