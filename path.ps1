@@ -4,6 +4,11 @@ Function Add-PathVariable {
         [string]$addPath
     )
 
+    if ([string]::IsNullOrEmpty($addPath))
+    {
+        return
+    }
+
     if (Test-Path $addPath)
     {
         $regexAddPath = [regex]::Escape($addPath)
@@ -12,9 +17,23 @@ Function Add-PathVariable {
     }
 }
 
+function Set-VariableFromArgument {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Name,
+        
+        [Parameter(Mandatory=$true)]
+        [object]$Value
+    )
+
+    Set-Variable -Name $Name -Value $Value -Scope Global
+}
+
 ## Sublime
 ## TODO: Move path to non-checked in config file
-Add-PathVariable $sublimePath
+Add-PathVariable $editorPath
 Add-PathVariable $githubClPath
 Add-PathVariable $godotPath
 Add-PathVariable $dotnetPath
+
+Set-VariableFromArgument -Name "officialBranch" -Value $mainBranchName
