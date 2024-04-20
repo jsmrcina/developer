@@ -1,8 +1,7 @@
 {
     "pathSep": ";",
-    "developerFolderPath": "C:\\Users\\jsmrc\\Documents\\git\\developer",
-    "gitFolderPath": "F:\\git",
-    "sublimePath": "C:\\Program Files\\Sublime Text 3",
+    "developerFolderPath": "D:\\git\\developer",
+    "gitFolderPath": "D:\\git",
     "mainBranchName": "main",
-    "developerUnrealPath": "F:\\git\\ue4.27-plus\\Engine\\Binaries\\Win64\\UE4Editor.exe"
+    "developerUnrealPath": "D:\\git\\ue\\Engine\\Binaries\\Win64\\UE4Editor.exe"
 }

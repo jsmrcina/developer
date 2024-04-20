@@ -12,3 +12,7 @@ git config --global alias.s status
 git config --global alias.c commit
 git config --global alias.ch checkout
 git config --global alias.a add
+git config --global alias.rb rebase
+git config --global alias.p push
+git config --global alias.f fetch
+git config --global alias.l10 'log --pretty=format:"%h`t`t%s" -n10'
