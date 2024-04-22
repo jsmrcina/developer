@@ -1,0 +1,1 @@
+$global:developerConfigFile = "$PSScriptRoot\home_config.json"
