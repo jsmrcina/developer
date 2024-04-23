@@ -16,3 +16,4 @@ git config --global alias.rb rebase
 git config --global alias.p push
 git config --global alias.f fetch
 git config --global alias.l10 'log --pretty=format:"%h`t`t%s" -n10'
+git config --global alias.br 'branch -vv'
