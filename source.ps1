@@ -5,6 +5,7 @@
 . $developerFolderPath\aliases.ps1
 . $developerFolderPath\config.ps1
 . $developerFolderPath\path.ps1
+. $developerFolderPath\prompt.ps1
 
 Get-ChildItem "$developerFolderPath\functions" -filter *.ps1 | % {
         . $_.FullName
