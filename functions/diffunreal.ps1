@@ -45,15 +45,24 @@ function global:diffunreal {
     )
 
 # Internal function for using git low level commands to query the contents of a file at a specific hash
-function GetFileContentsForHash([string] $InternalFilePath, [string] $InternalCommitIsh, [string] $TempFilePath, [bool] $InternalVerbose)
-{
+function GetFileContentsForHash {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string] $InternalFilePath,
+        [Parameter(Mandatory=$true)]
+        [string] $InternalCommitIsh,
+        [Parameter(Mandatory=$true)]
+        [string] $InternalTempFilePath,
+        [Parameter(Mandatory=$true)]
+        [bool] $InternalVerbose)
+
     $ObjId = (git ls-tree $InternalCommitIsh $InternalFilePath).Split(" ")[2].Split("`t")[0]
     $FilePointerInfo = (git cat-file -p $objId)
 
     if($InternalVerbose -eq $true)
     {
         Write-Host
-        $DebugOutput = 'For file: {0}, and commit: {1}, output to: {2}, found object id: {3}' -f $InternalFilePath, $InternalCommitIsh, $TempFilePath, $ObjId
+        $DebugOutput = 'For file: {0}, and commit: {1}, output to: {2}, found object id: {3}' -f $InternalFilePath, $InternalCommitIsh, $InternalTempFilePath, $ObjId
         Write-Host -ForegroundColor Blue $DebugOutput
     }
 
@@ -87,7 +96,7 @@ function GetFileContentsForHash([string] $InternalFilePath, [string] $InternalCo
     $Process.StandardInput.WriteLine()
 
     # Write the output to our temporary file
-    $outputFileStream = [System.IO.File]::OpenWrite($TempFilePath)
+    $outputFileStream = [System.IO.File]::OpenWrite($InternalTempFilePath)
     $buffer = New-Object byte[] 4096
     while ($true)
     {
@@ -108,6 +117,7 @@ function GetFileContentsForHash([string] $InternalFilePath, [string] $InternalCo
 }
 
 Write-Host
+Set-StrictMode -Version 3.0
 
 # Validate git exists and we are in a git repo
 if (-not (Get-Command "git.exe" -ErrorAction SilentlyContinue))
@@ -160,7 +170,8 @@ Write-Host
 if ([string]::IsNullOrEmpty($ProjectPath))
 {
     $UProjectFilesInDirectory = (Get-ChildItem *.uproject)
-    if($UProjectFilesInDirectory.Count -eq 1)
+    $Measured = ($UProjectFilesInDirectory | Measure-Object)
+    if($Measured.Count -eq 1)
     {
         $ProjectPath = $UProjectFilesInDirectory[0].FullName
         Write-Host ("No uproject path specified, found a single uproject in the current directoy, using it: {0}" -f $ProjectPath)
@@ -201,7 +212,18 @@ if ([string]::IsNullOrEmpty($FirstCommitIsh))
         return
     }
 
-    Write-Host ("Found merge-base with {0} branch at hash {1}" -f $global:officialBranch,$FirstHash)
+    Write-Host ("Found merge-base with {0} branch at hash {1}" -f $global:officialBranch, $FirstHash)
+    Write-Host ("Checking to see if file was edited at hash {0}" -f $FirstHash)
+    $Result = (git ls-tree $InternalCommitIsh $InternalFilePath)
+    if($null -eq $Result)
+    {
+        Write-Warning ("File was not edited at hash {0}, will try to find earliest edit hash between merge-base and second proivded hash")
+        $SearchForFirstHash = $true
+    }
+    else
+    {
+        Write-Host ("File was edited at hash {0}, using that as our compare hash" -f $FirstHash)
+    }
 }
 else
 {
@@ -223,21 +245,36 @@ else
     Write-Host ("Using user-supplied second hash: {0}" -f $SecondHash)
 }
 
+if ($SearchForFirstHash)
+{
+    Write-Error "The script currently requires that both hashes have the file edited... please choose a first hash that contains edits to the file"
+    $LASTEXITCODE = 1
+    return
+
+    # TODO: Work on this more
+    #$DebugOutput = ("Searching for oldest edited hash for file {0} between hashes {1} and {2}" -f $FilePath, $FirstHash, $SecondHash)
+    #Write-Host $DebugOutput
+    #git rev-list $FirstHash $SecondHash $FilePath
+}
+
 try
 {
-    # Query the two versions of our file into temporary files inside %temp%
     $FirstFilePath = New-TemporaryFile
     $GotFirstFile = GetFileContentsForHash $FilePath $FirstHash $FirstFilePath $IsVerbose
     if(-not $GotFirstFile)
     {
-        Write-Host -ForegroundColor Red "Was not able to query first file, the file was not a valid Git LFS pointer"
+        Write-Error "Was not able to query first file, the file was not a valid Git LFS pointer"
+        $LASTEXITCODE = 1
+        return
     }
 
     $SecondFilePath = New-TemporaryFile
     $GotSecondFile = GetFileContentsForHash $FilePath $SecondHash $SecondFilePath $IsVerbose
     if(-not $GotSecondFile)
     {
-        Write-Host -ForegroundColor Red "Was not able to query first file, the file was not a valid Git LFS pointer"
+        Write-Error "Was not able to query first file, the file was not a valid Git LFS pointer"
+        $LASTEXITCODE = 1
+        return
     }
 
     Write-Host
