@@ -107,6 +107,8 @@ function GetFileContentsForHash([string] $InternalFilePath, [string] $InternalCo
     return $true
 }
 
+Write-Host
+
 # Validate git exists and we are in a git repo
 if (-not (Get-Command "git.exe" -ErrorAction SilentlyContinue))
 {
@@ -132,6 +134,7 @@ if (-not (Test-Path -Path $FilePath))
 
 $FilePath = (Get-ChildItem $FilePath)[0].FullName
 Write-Host ("Comparing file: {0}" -f $FilePath)
+Write-Host
 
 # Validate Unreal Editor is found
 if ([string]::IsNullOrEmpty($UnrealPath))
@@ -150,6 +153,8 @@ if (-not (Test-Path -Path $UnrealPath))
     $LASTEXITCODE = 1
     return
 }
+
+Write-Host
 
 # Validate uproject exists
 if ([string]::IsNullOrEmpty($ProjectPath))
@@ -180,6 +185,8 @@ else
     Write-Host ("Using user-supplied uproject: {0}" -f $ProjectPath)
 }
 
+Write-Host
+
 # Validate user supplied a valid first commit hash or we can find a merge-base
 if ([string]::IsNullOrEmpty($FirstCommitIsh))
 {
@@ -201,6 +208,8 @@ else
     $FirstHash = $FirstCommitIsh
     Write-Host ("Using user-supplied first hash: {0}" -f $FirstHash)
 }
+
+Write-Host
 
 # Validate user supplied a valid second commit hash, or we default to HEAD 
 if ([string]::IsNullOrEmpty($SecondCommitIsh))
@@ -231,6 +240,7 @@ try
         Write-Host -ForegroundColor Red "Was not able to query first file, the file was not a valid Git LFS pointer"
     }
 
+    Write-Host
     Write-Host ("Performing diff between hash {0} and {1}" -f $FirstHash, $SecondHash) -ForegroundColor Green 
 
     # Call UnrealEditor with the diff option to compare the old file and the checked out file
