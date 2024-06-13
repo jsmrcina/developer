@@ -12,3 +12,4 @@ if (-not (Get-Module -ListAvailable -Name z))
 git config --global push.autoSetupRemote true
 git config --global core.editor gvim
 git config --global rebase.autosquash true
+git config --global core.autocrlf true
