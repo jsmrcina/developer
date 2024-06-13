@@ -8,8 +8,8 @@ $global:developer_dir = Split-Path $MyInvocation.MyCommand.Path
 ## Git aliases
 git config --global alias.s status
 git config --global alias.c commit
-git config --global alias.cm '!f() { git commit -m $1; }; f'
-git config --global alias.cf '!f() { git commit --fixup $1 -m $2; }; f'
+git config --global alias.cm '!f() { git commit -m "$1"; }; f'
+git config --global alias.cf '!f() { git commit --fixup "$1" -m "$2"; }; f'
 git config --global alias.chm '!f() { git checkout -b "$1" origin/main --no-track; }; f'
 git config --global alias.a add
 git config --global alias.aa '!f() { git add *; }; f'
