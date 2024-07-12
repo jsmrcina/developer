@@ -10,3 +10,10 @@
 Get-ChildItem "$developerFolderPath\functions" -filter *.ps1 | % {
         . $_.FullName
 }
+
+if((Test-Path "$developerFolderPath\pfunctions") -eq $true)
+{
+  Get-ChildItem "$developerFolderPath\pfunctions" -filter *.ps1 | % {
+          . $_.FullName
+  }
+}
