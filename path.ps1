@@ -37,4 +37,8 @@ Add-PathVariable $godotPath
 Add-PathVariable $dotnetPath
 
 Set-VariableFromArgument -Name "officialBranch" -Value $mainBranchName
-Set-VariableFromArgument -Name "developerUnrealPath" -Value $developerUnrealPath
+
+if($developerUnrealPath -ne $null)
+{
+  Set-VariableFromArgument -Name "developerUnrealPath" -Value $developerUnrealPath
+}
