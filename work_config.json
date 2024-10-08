@@ -1,6 +1,6 @@
 {
     "pathSep": ";",
-    "developerFolderPath": "D:\\git\\developer",
+    "developerFolderPath": "D:\\gitp\\developer",
     "gitFolderPath": "D:\\git",
     "mainBranchName": "main",
     "developerUnrealPath": "D:\\git\\ue\\Engine\\Binaries\\Win64\\UE4Editor.exe"
