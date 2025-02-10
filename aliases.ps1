@@ -18,7 +18,7 @@ git config --global alias.rom '!f() { git fetch; git rebase origin/main; }; f'
 git config --global alias.p push
 git config --global alias.f fetch
 git config --global alias.fp 'fetch --prune'
-git config --global alias.l '!f() { git log --pretty=format:"%<|(10)%Cgreen%h%Creset%Cred%<(15,trunc)%an%Creset%<(50,mtrunc)%s" -n$1; }; f'
+git config --global alias.l '!f() { git log --pretty=format:"%<|(15)%Cgreen%h%Creset%Cred%<(15,trunc)%an%Creset%<(50,mtrunc)%s" -n$1; }; f'
 git config --global alias.la 'log --pretty=format:"%<|(10)%Cgreen%h%Creset%Cred%<(15,trunc)%an%Creset%<(50,mtrunc)%s"'
 git config --global alias.br 'branch -vv --all'
 git config --global alias.brd '!f() { git branch -D $1; }; f'
