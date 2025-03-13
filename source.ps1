@@ -10,15 +10,23 @@
 $global:dev_functions = @()
 $global:pdev_functions = @()
 
+$before = (Get-Command -CommandType Function).Name
 Get-ChildItem "$developerFolderPath\functions" -filter *.ps1 | % {
         . $_.FullName
-        $global:dev_functions += (Get-Item $_.FullName).Basename
 }
+$after = (Get-Command -CommandType Function).Name
+
+$newFunctions = $after | Where-Object { $before -notcontains $_ }
+$global:dev_functions += $newFunctions
 
 if((Test-Path "$developerFolderPath\pfunctions") -eq $true)
 {
+  $before = (Get-Command -CommandType Function).Name
   Get-ChildItem "$developerFolderPath\pfunctions" -filter *.ps1 | % {
           . $_.FullName
-          $global:pdev_functions += (Get-Item $_.FullName).Basename
   }
+  $after = (Get-Command -CommandType Function).Name
+
+  $newFunctions = $after | Where-Object { $before -notcontains $_ }
+  $global:pdev_functions += $newFunctions
 }
