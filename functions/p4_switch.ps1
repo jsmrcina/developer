@@ -12,7 +12,11 @@ function global:p4_switchf($file)
     Write-Host $config
     Write-Host
 
-    p4 set P4PORT=$config.address
-    p4 set P4USER=$config.user
-    p4 set P4CLIENT=$config.client
+    $address = $config.address
+    $user = $config.user
+    $client = $config.client
+
+    p4 set P4PORT=$address
+    p4 set P4USER=$user
+    p4 set P4CLIENT=$client
 }
