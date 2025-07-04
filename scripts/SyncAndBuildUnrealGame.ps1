@@ -166,5 +166,48 @@ foreach ($platform in $Platform)
         }
 
         & $uatPath BuildCookRun @uatArgs
+
+        if ($ZipOutput)
+        {
+            $zipExe = Get-Command "7z.exe" -ErrorAction SilentlyContinue
+
+            if (-not $zipExe)
+            {
+                $knownPaths = @(
+                    "${env:ProgramFiles}\7-Zip\7z.exe",
+                    "${env:ProgramFiles(x86)}\7-Zip\7z.exe"
+                )
+
+                foreach ($path in $knownPaths)
+                {
+                    if (Test-Path $path)
+                    {
+                        $zipExe = $path
+                        break
+                    }
+                }
+            }
+
+            if (-not $zipExe)
+            {
+                Write-Warning "7z.exe not found. Skipping zip step for $outputDir."
+            }
+            else
+            {
+                $zipName = "${outputDir}.7z"
+                Write-Host "Zipping $outputDir to $zipName" -ForegroundColor Cyan
+
+                & $zipExe a "-t7z" "$zipName" "$outputDir\*" | Out-Null
+
+                if (Test-Path $zipName)
+                {
+                    Write-Host "Created archive: $zipName" -ForegroundColor Green
+                }
+                else
+                {
+                    Write-Warning "Failed to create archive: $zipName"
+                }
+            }
+        }
     }
 }
