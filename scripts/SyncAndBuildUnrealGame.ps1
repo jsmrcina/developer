@@ -186,7 +186,7 @@ foreach ($platform in $Platforms)
         $str = "$uatPath BuildCookRun " + ($uatArgs -join ' ')
         Write-Host -ForegroundColor Green $str
 
-        # & $uatPath BuildCookRun @uatArgs
+        & $uatPath BuildCookRun @uatArgs
 
         if ($ZipOutput)
         {
