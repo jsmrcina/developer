@@ -19,7 +19,7 @@ param (
 
     [string]$ArchiveDirectory,
 
-    [hashtable]$PlatformsMapping
+    [hashtable]$PlatformMapping
 )
 
 $currentDir = Get-Location
@@ -250,8 +250,8 @@ if ($ZipOutput -and $ArchiveDirectory)
         $zipDir = [System.IO.Path]::GetDirectoryName($zipPath)
         $platformName = Split-Path -Path $zipDir -Leaf
 
-        $mappedName = if ($PlatformsMapping.ContainsKey($platformName)) {
-            $PlatformsMapping[$platformName]
+        $mappedName = if ($PlatformMapping.ContainsKey($platformName)) {
+            $PlatformMapping[$platformName]
         } else {
             $platformName
         }
