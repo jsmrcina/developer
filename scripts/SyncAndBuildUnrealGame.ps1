@@ -5,15 +5,21 @@ param (
     [Parameter(Mandatory = $true)]
     [string]$OutputRoot,
 
-    [string[]]$Platform,
+    [string[]]$Platforms,
 
-    [string[]]$Config,
+    [string[]]$Configs,
 
     [string]$Target,
 
     [bool]$IncludeCl = $true,
 
-    [bool]$ZipOutput = $true
+    [bool]$ZipOutput = $true,
+
+    [switch]$Distribution = $false,
+
+    [string]$ArchiveDirectory,
+
+    [hashtable]$PlatformsMapping
 )
 
 $currentDir = Get-Location
@@ -43,6 +49,12 @@ $uatPath = Join-Path $enginePath "Engine\Build\BatchFiles\RunUAT.bat"
 if (-not (Test-Path $uatPath)) 
 {
     Write-Error "RunUAT.bat not found at expected location: $uatPath"
+    exit 1
+}
+
+if ($ArchiveDirectory -and -not $ZipOutput)
+{
+    Write-Error "-ArchiveDirectory specified but -ZipOutput is disabled. This is not allowed."
     exit 1
 }
 
@@ -101,9 +113,7 @@ if ($IncludeCl)
     }
 }
 
-$timestamp = Get-Date -Format "yy.MM.dd.HHmm"
-
-if (-not $Platform)
+if (-not $Platforms)
 {
     if (-not (Test-Path $platformsPath)) 
     {
@@ -111,10 +121,10 @@ if (-not $Platform)
         exit 1
     }
 
-    $Platform = Get-Content $platformsPath | Where-Object { $_.Trim() -ne "" }
+    $Platforms = Get-Content $platformsPath | Where-Object { $_.Trim() -ne "" }
 }
 
-if (-not $Config)
+if (-not $Configs)
 {
     if (-not (Test-Path $configsPath)) 
     {
@@ -122,13 +132,16 @@ if (-not $Config)
         exit 1
     }
 
-    $Config = Get-Content $configsPath | Where-Object { $_.Trim() -ne "" }
+    $Configs = Get-Content $configsPath | Where-Object { $_.Trim() -ne "" }
 }
 
-foreach ($platform in $Platform)
+$results = @()
+foreach ($platform in $Platforms)
 {
-    foreach ($config in $Config)
+    foreach ($config in $Configs)
     {
+
+        $timestamp = Get-Date -Format "yy.MM.dd.HHmm"
         $platform = $platform.Trim()
         $config = $config.Trim()
 
@@ -165,7 +178,15 @@ foreach ($platform in $Platform)
             $uatArgs += "-targetplatform=${platform}"
         }
 
-        & $uatPath BuildCookRun @uatArgs
+        if ($Distribution)
+        {
+            $uatArgs += "-distribution"
+        }
+
+        $str = "$uatPath BuildCookRun " + ($uatArgs -join ' ')
+        Write-Host -ForegroundColor Green $str
+
+        # & $uatPath BuildCookRun @uatArgs
 
         if ($ZipOutput)
         {
@@ -183,7 +204,6 @@ foreach ($platform in $Platform)
                     if (Test-Path $path)
                     {
                         $zipExe = $path
-                        break
                     }
                 }
             }
@@ -194,13 +214,14 @@ foreach ($platform in $Platform)
             }
             else
             {
-                $zipName = "${outputDir}.7z"
+                $zipName = Join-Path -Path (Split-Path -Path $outputDir -Parent) -ChildPath "$([System.IO.Path]::GetFileName($outputDir)).7z"
                 Write-Host "Zipping $outputDir to $zipName" -ForegroundColor Cyan
 
                 & $zipExe a "-t7z" "$zipName" "$outputDir\*" | Out-Null
 
                 if (Test-Path $zipName)
                 {
+                    $results += $zipName
                     Write-Host "Created archive: $zipName" -ForegroundColor Green
                 }
                 else
@@ -209,5 +230,43 @@ foreach ($platform in $Platform)
                 }
             }
         }
+    }
+}
+
+Write-Host "=== Summary ===" -ForegroundColor Cyan
+foreach($result in $results)
+{
+    Write-Host ("Generated: " + $result) -ForegroundColor Cyan
+}
+
+if ($ZipOutput -and $ArchiveDirectory)
+{
+    $now = Get-Date -Format "yyyy-MM-dd"
+    $clLabel = if ($IncludeCl -and $p4Change) { "$p4Change" } else { "NA" }
+
+    foreach ($zipPath in $results)
+    {
+        $zipFileName = [System.IO.Path]::GetFileName($zipPath)
+        $zipDir = [System.IO.Path]::GetDirectoryName($zipPath)
+        $platformName = Split-Path -Path $zipDir -Leaf
+
+        $mappedName = if ($PlatformsMapping.ContainsKey($platformName)) {
+            $PlatformsMapping[$platformName]
+        } else {
+            $platformName
+        }
+
+        $destDir = Join-Path $ArchiveDirectory (Join-Path $mappedName "$now-$clLabel")
+
+        if (-not (Test-Path $destDir))
+        {
+            New-Item -ItemType Directory -Path $destDir | Out-Null
+        }
+
+        $destPath = Join-Path $destDir $zipFileName
+
+        Copy-Item -Path $zipPath -Destination $destPath -Force
+
+        Write-Host "Archived $zipFileName to $destPath" -ForegroundColor Yellow
     }
 }
