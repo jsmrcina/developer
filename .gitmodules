@@ -1,0 +1,6 @@
+[submodule "winget"]
+	path = winget
+	url = https://github.com/jsmrcina/winget
+[submodule "wezterm"]
+	path = wezterm
+	url = https://github.com/jsmrcina/wezterm.git
