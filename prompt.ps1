@@ -11,8 +11,8 @@ function prompt
         if ($LASTEXITCODE -eq 0)
         {
             $branch = git rev-parse --abbrev-ref HEAD
-            $red = "`e[31m"
-            $reset = "`e[0m"
+            $red = "$([char]27)[31m"
+            $reset = "$([char]27)[0m"
             $gitBranch = "${red}[$branch]${reset} "
         }
     }

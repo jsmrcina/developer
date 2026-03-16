@@ -1,0 +1,1 @@
+$global:developerConfigFile = "$PSScriptRoot\work_2_config.json"
