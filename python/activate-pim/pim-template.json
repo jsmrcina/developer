@@ -1,0 +1,10 @@
+Rename to pim-config.json. Should contain a JSON object of this form:
+
+{
+    "subscriptions": {
+        "NAME1": "GUID1",
+        "NAME2": "GUID2"
+    },
+    "default_duration": "PT8H",
+    "default_justification": "Development on Soteria"
+}
