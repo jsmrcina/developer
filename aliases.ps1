@@ -2,7 +2,12 @@
 Function CdToGit { Set-Location -Path $global:gitFolderPath}
 Set-Alias -Name cdgit -Value CdToGit
 
-## Global variables
+# Private Aliases
+if (Test-Path -Path "$PSScriptRoot\p_aliases.ps1") {
+    . "$PSScriptRoot\p_aliases.ps1"
+}
+
+# Global variables
 $global:developer_dir = Split-Path $MyInvocation.MyCommand.Path
 
 ## Git aliases

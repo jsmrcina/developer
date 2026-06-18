@@ -2,9 +2,20 @@ Rename to pim-config.json. Should contain a JSON object of this form:
 
 {
     "subscriptions": {
-        "NAME1": "GUID1",
-        "NAME2": "GUID2"
+        "NAME1": {
+            "id": "SUBSCRIPTION-GUID",
+            "aks_resource_group": "my-resource-group",
+            "aks_cluster_name": "my-cluster"
+        },
+        "NAME2": {
+            "id": "SUBSCRIPTION-GUID-2",
+            "aks_resource_group": "",
+            "aks_cluster_name": ""
+        }
     },
     "default_duration": "PT8H",
-    "default_justification": "Development on Soteria"
+    "default_justification": "Development on Project"
 }
+
+Subscription entries can also be plain strings (just the ID) for activate-only use.
+AKS fields are required for --switch mode.
