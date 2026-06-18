@@ -4,7 +4,6 @@ Usage:
     python activate-pim.py --activate
     python activate-pim.py --activate --duration PT4H
     python activate-pim.py --activate --justification "Investigating incident"
-    python activate-pim.py --switch --subscription Soteria.Dev.01
     python activate-pim.py --config path/to/config.json --activate --dry-run
 
 Modes:
