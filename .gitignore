@@ -1,5 +1,5 @@
 pfunctions/
-python/activate-pim/pim-config.json
+python/activate-pim/*.json
 
 # Personal/private files prefixed with p_ (anywhere in the tree)
 p_*

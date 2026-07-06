@@ -5,7 +5,11 @@ Rename to pim-config.json. Should contain a JSON object of this form:
         "NAME1": {
             "id": "SUBSCRIPTION-GUID",
             "aks_resource_group": "my-resource-group",
-            "aks_cluster_name": "my-cluster"
+            "aks_cluster_name": "my-cluster",
+            "roles": [
+                "Role Display Name A",
+                "Role Display Name B"
+            ]
         },
         "NAME2": {
             "id": "SUBSCRIPTION-GUID-2",
@@ -19,3 +23,9 @@ Rename to pim-config.json. Should contain a JSON object of this form:
 
 Subscription entries can also be plain strings (just the ID) for activate-only use.
 AKS fields are required for --switch mode.
+
+Optional "roles" is an allowlist of PIM role display names to activate for that
+subscription (exact, case-insensitive match). Omit it to activate all eligible
+roles. The names must match verbatim what PIM reports -- run with --dry-run
+(-DryRun in PowerShell) to print every eligible role's exact display name.
+The --role / -Role CLI argument overrides this per-subscription filter.

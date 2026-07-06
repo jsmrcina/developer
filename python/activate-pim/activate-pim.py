@@ -267,19 +267,33 @@ def run_activate(config: dict, args):
             print("  No eligible PIM roles found.")
             continue
 
-        # Filter roles if specified
+        # Build the allowlist of role display names to activate.
+        # Precedence: --role (CLI) overrides the per-subscription "roles" config filter.
+        # When no allowlist is set, all eligible roles are activated (original behavior).
+        allowlist = None
         if args.role:
-            roles = [r for r in roles if r["name"] == args.role]
-            if not roles:
-                print(f"  Role '{args.role}' not found among eligible roles.")
-                continue
+            allowlist = [args.role]
+        elif isinstance(sub_entry, dict) and sub_entry.get("roles"):
+            allowlist = sub_entry["roles"]
+
+        if args.role and not any(r["name"] == args.role for r in roles):
+            print(f"  Role '{args.role}' not found among eligible roles.")
+            continue
 
         for role in roles:
+            in_allowlist = allowlist is None or role["name"] in allowlist
+
+            if not in_allowlist and not args.dry_run:
+                continue
+
             print(f"\n  Role: {role['name']}")
             print(f"  Scope: {role['scope']}")
 
             if args.dry_run:
-                print("  [DRY RUN] Would activate this role.")
+                if in_allowlist:
+                    print("  [DRY RUN] Would activate this role.")
+                else:
+                    print("  [DRY RUN] Skipped (not in roles filter).")
                 continue
 
             print(f"  Activating for {duration} ...")
