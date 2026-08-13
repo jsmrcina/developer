@@ -5,6 +5,7 @@
     "githubUser": "jsmrcina",
     "extraPaths": [
         "/home/jsmrcina/.local/bin",
-        "/home/jsmrcina/.dotnet"
+        "/home/jsmrcina/.dotnet",
+        "/home/jsmrcina/.local/share/JetBrains/Toolbox/scripts"
     ]
 }
