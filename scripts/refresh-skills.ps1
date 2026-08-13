@@ -1,31 +1,34 @@
 <#
 .SYNOPSIS
-  Refreshes ~/.copilot/skills/ with junctions to every skill folder in the
-  skill repo repo so that all Copilot CLI sessions discover them globally.
+  Refreshes ~/.copilot/skills/ with links to every skill folder in the
+  skill repo so that all Copilot CLI sessions discover them globally.
 
 .DESCRIPTION
-  Scans <RepoRoot>\.agents\skills and <RepoRoot>\plugins\*\skills for any
-  subfolder containing a SKILL.md, then creates an NTFS junction at
-  $env:USERPROFILE\.copilot\skills\<skill-name> pointing at the real folder.
+  Scans <RepoRoot>/.agents/skills and <RepoRoot>/plugins/*/skills for any
+  subfolder containing a SKILL.md, then creates a link at
+  ~/.copilot/skills/<skill-name> pointing at the real folder.
+
+  On Linux/macOS the links are symlinks. On Windows they are NTFS junctions,
+  which (unlike symlinks) do not require Developer Mode or elevation.
 
   Idempotent:
-    - Already-correct junctions are skipped
-    - Junctions pointing at the wrong target are recreated
-    - Real (non-junction) directories are left alone with a warning
-    - Stale junctions whose target no longer exists are removed
+    - Already-correct links are skipped
+    - Links pointing at the wrong target are recreated
+    - Real (non-link) directories are left alone with a warning
+    - Stale links whose target no longer exists are removed
 
 .PARAMETER RepoRoot
   Path to the skill repo checkout. Required.
 
 .PARAMETER Prune
-  Remove junctions in ~/.copilot/skills/ that no longer correspond to a skill
+  Remove links in ~/.copilot/skills/ that no longer correspond to a skill
   in the repo. Off by default.
 
 .EXAMPLE
-  pwsh -File $env:USERPROFILE\.copilot\refresh-skills.ps1 -RepoRoot C:\developer\git\skill_repo
+  pwsh -File ~/.copilot/refresh-skills.ps1 -RepoRoot ~/Documents/git/skill_repo
 
 .EXAMPLE
-  pwsh -File $env:USERPROFILE\.copilot\refresh-skills.ps1 -RepoRoot D:\src\skill_repo  -Prune
+  pwsh -File $env:USERPROFILE\.copilot\refresh-skills.ps1 -RepoRoot D:\src\skill_repo -Prune
 #>
 [CmdletBinding()]
 param(
@@ -36,20 +39,52 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# $IsWindows only exists in PowerShell 6+; 5.1 can only ever be Windows
+$onWindows = ($PSVersionTable.PSEdition -ne 'Core') -or $IsWindows
+
+# Creates a directory link, using junctions on Windows so that no elevation or
+# Developer Mode is required, and symlinks everywhere else.
+function New-DirectoryLink {
+  param([string]$LinkPath, [string]$TargetPath)
+
+  if ($onWindows) {
+    cmd /c mklink /J "$LinkPath" "$TargetPath" | Out-Null
+  } else {
+    New-Item -ItemType SymbolicLink -Path $LinkPath -Target $TargetPath | Out-Null
+  }
+}
+
+function Remove-DirectoryLink {
+  param([string]$LinkPath)
+
+  if ($onWindows) {
+    cmd /c rmdir "$LinkPath" 2>$null | Out-Null
+  } else {
+    # -Recurse on a symlink removes the link itself, not the target contents
+    Remove-Item -LiteralPath $LinkPath -Force -Recurse
+  }
+}
+
 if (-not (Test-Path $RepoRoot)) {
   Write-Error "RepoRoot not found: $RepoRoot"
   exit 1
 }
 
-$globalSkills = Join-Path $env:USERPROFILE '.copilot\skills'
+$homeDir = if ($onWindows) { $env:USERPROFILE } else { $HOME }
+$globalSkills = Join-Path $homeDir '.copilot/skills'
 if (-not (Test-Path $globalSkills)) {
-  New-Item -ItemType Directory -Path $globalSkills | Out-Null
+  New-Item -ItemType Directory -Path $globalSkills -Force | Out-Null
   Write-Host "[INFO]  Created $globalSkills"
 }
 
 # Discover every <skills>/<skill> folder that contains a SKILL.md
-$skillParents = @((Join-Path $RepoRoot '.agents\skills'))
-$pluginsDir   = Join-Path $RepoRoot 'plugins'
+$skillParents = @()
+$agentSkills = Join-Path $RepoRoot '.agents/skills'
+if (Test-Path $agentSkills) {
+  $skillParents += $agentSkills
+}
+
+$pluginsDir = Join-Path $RepoRoot 'plugins'
 if (Test-Path $pluginsDir) {
   $skillParents += Get-ChildItem -Path $pluginsDir -Directory |
     ForEach-Object { Join-Path $_.FullName 'skills' } |
@@ -61,7 +96,7 @@ $skills = foreach ($parent in $skillParents) {
     Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') }
 }
 
-# Warn on duplicate names (junction names must be unique)
+# Warn on duplicate names (link names must be unique)
 $skills | Group-Object Name | Where-Object { $_.Count -gt 1 } | ForEach-Object {
   Write-Host "[WARN]  Duplicate skill name '$($_.Name)':"
   $_.Group | ForEach-Object { Write-Host "          $($_.FullName)" }
@@ -88,8 +123,8 @@ foreach ($s in $skills) {
         $counts.Skipped++
         continue
       }
-      cmd /c rmdir "$linkPath" 2>$null | Out-Null
-      cmd /c mklink /J "$linkPath" "$($s.FullName)" | Out-Null
+      Remove-DirectoryLink $linkPath
+      New-DirectoryLink $linkPath $s.FullName
       Write-Host "[FIX]   $($s.Name) (target updated)"
       $counts.Relinked++
       continue
@@ -100,17 +135,17 @@ foreach ($s in $skills) {
     }
   }
 
-  cmd /c mklink /J "$linkPath" "$($s.FullName)" | Out-Null
+  New-DirectoryLink $linkPath $s.FullName
   if (Test-Path $linkPath) {
     Write-Host "[OK]    $($s.Name)"
     $counts.Created++
   } else {
-    Write-Host "[ERROR] $($s.Name) - mklink failed"
+    Write-Host "[ERROR] $($s.Name) - link creation failed"
     $counts.Failed++
   }
 }
 
-# Optionally prune junctions whose target no longer exists or no longer maps to a discovered skill
+# Optionally prune links whose target no longer exists or no longer maps to a discovered skill
 if ($Prune) {
   $known = $seen.Keys
   Get-ChildItem -Force $globalSkills | ForEach-Object {
@@ -121,7 +156,7 @@ if ($Prune) {
     elseif (-not (Test-Path $target)) { $orphan = $true }
     elseif ($known -notcontains $_.Name) { $orphan = $true }
     if ($orphan) {
-      cmd /c rmdir "$($_.FullName)" 2>$null | Out-Null
+      Remove-DirectoryLink $_.FullName
       Write-Host "[PRUNE] $($_.Name)"
       $counts.Pruned++
     }

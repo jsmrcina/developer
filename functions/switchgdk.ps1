@@ -1,10 +1,11 @@
 function global:switchgdk($newGdkVersion)
 {
-    $elevated = [System.Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object System.Security.Principal.WindowsPrincipal($elevated)
-    $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
-    
-    if ($principal.IsInRole($adminRole))
+    if (-not (Test-WindowsOnly "The Microsoft GDK"))
+    {
+        return
+    }
+
+    if (Test-IsElevated)
     {
         Write-Host -ForegroundColor Green "Script is running as Administrator"
     }

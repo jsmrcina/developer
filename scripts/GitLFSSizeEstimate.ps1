@@ -20,6 +20,12 @@ $totalBytes = 0
 $currentIndex = 0
 $totalFiles = $pushEntries.Count
 
+if ($totalFiles -eq 0)
+{
+    Write-Output "Nothing to push for $Remote/$Branch"
+    return
+}
+
 foreach ($entry in $pushEntries)
 {
     $currentIndex++

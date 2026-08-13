@@ -1,6 +1,17 @@
-function global:p4_describe($numChanges, $userName = "jsmrcina")
+function global:p4_describe($numChanges, $userName = $global:p4User)
 {
-    $changes = p4 changes -m $numChanges -u $userName | % {
+    if (-not (checktool "p4"))
+    {
+        return
+    }
+
+    if ([string]::IsNullOrWhiteSpace($userName))
+    {
+        Write-Error "No user specified and no 'p4User' set in your config file"
+        return
+    }
+
+    $changes = p4 changes -m $numChanges -u $userName | ForEach-Object {
         ($_ -split ' ')[1]
     }
 

@@ -1,1 +1,1 @@
-$global:developerConfigFile = "$PSScriptRoot\work_config.json"
+$global:developerConfigFile = Join-Path $PSScriptRoot 'work_config.json'

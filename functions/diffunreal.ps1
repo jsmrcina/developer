@@ -4,6 +4,7 @@
 
     .PARAMETER UnrealPath
     Specifies the fully qualified path to the Unreal editor executable. If one is not specified, will default to the value of $global:developerUnrealPath
+    (set "developerUnrealPath" in your config file: Engine/Binaries/Win64/UnrealEditor.exe on Windows, Engine/Binaries/Linux/UnrealEditor on Linux).
 
     .PARAMETER ProjectPath
     Specifies the path to the Unreal uproject that these assets belong to.
@@ -119,10 +120,13 @@ function GetFileContentsForHash {
 Write-Host
 Set-StrictMode -Version 3.0
 
+$SearchForFirstHash = $false
+
 # Validate git exists and we are in a git repo
-if (-not (Get-Command "git.exe" -ErrorAction SilentlyContinue))
+if (-not (Get-Command "git" -ErrorAction SilentlyContinue))
 {
-    Write-Error "Cannot find git.exe"
+    Write-Error "Cannot find git on your PATH"
+    return
 }
 
 $output = (git status --porcelain)
@@ -214,10 +218,10 @@ if ([string]::IsNullOrEmpty($FirstCommitIsh))
 
     Write-Host ("Found merge-base with {0} branch at hash {1}" -f $global:officialBranch, $FirstHash)
     Write-Host ("Checking to see if file was edited at hash {0}" -f $FirstHash)
-    $Result = (git ls-tree $InternalCommitIsh $InternalFilePath)
+    $Result = (git ls-tree $FirstHash $FilePath)
     if($null -eq $Result)
     {
-        Write-Warning ("File was not edited at hash {0}, will try to find earliest edit hash between merge-base and second proivded hash")
+        Write-Warning ("File was not edited at hash {0}, will try to find earliest edit hash between merge-base and second provided hash" -f $FirstHash)
         $SearchForFirstHash = $true
     }
     else

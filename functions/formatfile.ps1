@@ -1,12 +1,9 @@
-. $global:developerFolderPath\functions\checktool.ps1
-
-function global:formatfile($fileName, $formatFile = "$global:developerFolderPath\.clang-format")
+function global:formatfile($fileName, $formatFile = (Join-Path $global:developerFolderPath ".clang-format"))
 {
-    $result = checkTool "clang-format.exe"
-    if (-not $result)
+    if (-not (checktool "clang-format"))
     {
         return
     }
 
-    clang-format.exe -i -style=file:"$formatFile" $fileName
+    clang-format -i -style=file:"$formatFile" $fileName
 }

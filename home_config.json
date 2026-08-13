@@ -1,8 +1,7 @@
 {
-    "pathSep": ";",
-    "developerFolderPath": "C:\\Users\\jsmrc\\Documents\\Git\\developer",
     "gitFolderPath": "F:\\git",
     "mainBranchName": "main",
+    "githubUser": "jsmrcina",
     "developerUnrealPath": "F:\\git\\ue4.27-plus\\Engine\\Binaries\\Win64\\UE4Editor.exe",
-    "vimPath": "C:\\Program Files\\Vim\\vim91\\gvim.exe"
+    "editorPath": "C:\\Program Files\\Vim\\vim91"
 }

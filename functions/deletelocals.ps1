@@ -2,36 +2,42 @@
 
 function global:deletelocals
 {
-    $locals = $(git branch).Split("\n")
-    $locals | % {
-        $cur = $_.Trim().Trim('*').Trim()
+    # A real foreach loop, so that break/continue below behave as intended
+    $locals = @(git branch --format='%(refname:short)')
+
+    foreach($cur in $locals)
+    {
+        $cur = $cur.Trim()
+
+        if([string]::IsNullOrWhiteSpace($cur))
+        {
+            continue
+        }
 
         # Add protection to avoid accidentally deleting your local main/master
         if($cur -eq "main" -or $cur -eq "master")
         {
-            Write-Host -Foreground Yellow "Auto-skipped $cur"
-            continue;
+            Write-Host -ForegroundColor Yellow "Auto-skipped $cur"
+            continue
         }
-        else
+
+        $delete = (Read-Host "Do you want to delete $($cur)? (y/n/q)").ToLower()
+
+        if($delete -eq 'y')
         {
-            $delete = (Read-Host "Do you want to delete $($cur)? (y/n/q)").ToLower()
-
-            if($delete -eq 'y')
-            {
-                Write-Host -Foreground Red "Deleted $cur"
-                git branch -D $cur
-            }
-            elseif($delete -eq 'n')
-            {
-                Write-Host -Foreground Green "Skipped $cur"
-            }
-            elseif($delete -eq 'q')
-            {
-                Write-Host -Foreground Cyan "Exiting..."
-                break;
-            }
-
-            Write-Host ""
+            Write-Host -ForegroundColor Red "Deleted $cur"
+            git branch -D $cur
         }
+        elseif($delete -eq 'n')
+        {
+            Write-Host -ForegroundColor Green "Skipped $cur"
+        }
+        elseif($delete -eq 'q')
+        {
+            Write-Host -ForegroundColor Cyan "Exiting..."
+            break
+        }
+
+        Write-Host ""
     }
 }

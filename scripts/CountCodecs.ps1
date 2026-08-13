@@ -10,6 +10,12 @@ $files = Get-ChildItem -Path $Path -Recurse -File |
     }
 
 $total = $files.Count
+if ($total -eq 0)
+{
+    Write-Host "No video files found under $Path"
+    return
+}
+
 $counter = 0
 $results = @()
 

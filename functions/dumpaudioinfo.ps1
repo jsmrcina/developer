@@ -1,17 +1,27 @@
-# Clones a repository into a specific folder
+# Summarizes channel/bitrate/sample rate across a set of audio files
 
 function global:dumpaudioinfo([string]$path)
 {
+    if (-not (checktool "ffprobe"))
+    {
+        return
+    }
+
     $fileList = @()
     if($path.Contains("*"))
     {
-        Get-ChildItem -File -Recurse $path | % { $fileList += $_ }
+        Get-ChildItem -File -Recurse $path | ForEach-Object { $fileList += $_ }
     }
     else
     {
         $fileList += $path
     }
 
+    if($fileList.Count -eq 0)
+    {
+        Write-Host -ForegroundColor Yellow "No files matched '$path'"
+        return
+    }
 
     $summary = @{}
     $numRead = 0
@@ -41,5 +51,6 @@ function global:dumpaudioinfo([string]$path)
         $numRead++
     }
 
+    Write-Progress -Activity "Reading files" -Completed
     $summary.Values | Sort-Object Files -Descending | Format-Table -AutoSize
 }

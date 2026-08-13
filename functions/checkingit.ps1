@@ -2,14 +2,16 @@
 
 function global:checkingit([string]$owner)
 {
-    gci | ForEach-Object {
-        if(-not (Test-Path "$_\.git"))
+    Get-ChildItem -Directory | ForEach-Object {
+        $gitDir = Join-Path $_.FullName ".git"
+
+        if(-not (Test-Path $gitDir))
         {
             Write-Host "$_ is not in Git"
         }
         else
         {
-            foreach($line in Get-Content "$_\.git\config")
+            foreach($line in Get-Content (Join-Path $gitDir "config"))
             {
                 if($line.Trim().StartsWith("url = "))
                 {
@@ -31,8 +33,6 @@ function global:checkingit([string]$owner)
                     }
                 }
             }
-
-            return
         }
     }
 }

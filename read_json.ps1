@@ -1,11 +1,28 @@
-# Read the JSON file content
-$jsonContent = Get-Content -Path $global:developerConfigFile | Out-String
+# Loads the machine-specific config file into global variables.
+# $global:developerConfigFile is set by the _<location>.ps1 file your profile sources.
 
-# Parse the JSON content
-$jsonObject = ConvertFrom-Json -InputObject $jsonContent
+if ([string]::IsNullOrWhiteSpace($global:developerConfigFile))
+{
+    Write-Warning "`$global:developerConfigFile is not set. Source one of the _<location>.ps1 files (e.g. _linux.ps1) from your profile before source.ps1."
+    return
+}
+
+if (-not (Test-Path $global:developerConfigFile))
+{
+    Write-Warning "Config file not found: $global:developerConfigFile"
+    return
+}
+
+# Read and parse the JSON file content
+$jsonObject = Get-Content -Path $global:developerConfigFile -Raw | ConvertFrom-Json
 
 # Loop through the key-value pairs and create variables
 foreach ($key in $jsonObject.PSObject.Properties.Name) {
-    $value = $jsonObject.$key
-    Set-Variable -Name $key -Value $value -Scope Global
+    # developerFolderPath is derived from $PSScriptRoot in source.ps1, never from config
+    if ($key -eq 'developerFolderPath')
+    {
+        continue
+    }
+
+    Set-Variable -Name $key -Value $jsonObject.$key -Scope Global
 }

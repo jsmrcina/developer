@@ -1,6 +1,20 @@
-# Traces a provider guid with stacks
-function global:trace($guid = "ce5fa4ea-ab00-5402-8b76-9f76ac858fb5", $file = "C:\trace.etl", $kernelFile = "C:\kernel.etl", $outFile = "C:\out.etl")
+# Traces a provider guid with stacks (Windows only, requires the WPT xperf tool)
+function global:trace($guid = "ce5fa4ea-ab00-5402-8b76-9f76ac858fb5",
+                      $file = (Join-Path ([System.IO.Path]::GetTempPath()) "trace.etl"),
+                      $kernelFile = (Join-Path ([System.IO.Path]::GetTempPath()) "kernel.etl"),
+                      $outFile = (Join-Path ([System.IO.Path]::GetTempPath()) "out.etl"))
 {
+    if (-not (Test-WindowsOnly "ETW tracing with xperf"))
+    {
+        Write-Host -ForegroundColor Yellow "On Linux, use 'perf record' or LTTng instead."
+        return
+    }
+
+    if (-not (checktool "xperf"))
+    {
+        return
+    }
+
     $guidWithStack = "$guid:::'stack'"
 
     xperf -start trace -on $guidWithStack -f $file

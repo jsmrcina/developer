@@ -1,11 +1,17 @@
 # Clones all repositories for a specific user into the current folder
 # Make sure you have ghcli installed: https://cli.github.com/ and have run "gh auth login" once
 
-function global:cloneall()
+function global:cloneall([string]$owner = $global:githubUser)
 {
-    if ((Get-Command "gh" -ErrorAction SilentlyContinue) -eq $null) 
-    { 
-        Write-Host "Unable to find gh in your PATH, go to https://cli.github.com/ to download"
+    if (-not (checktool "gh"))
+    {
+        Write-Host "Go to https://cli.github.com/ to download the GitHub CLI"
+        return
+    }
+
+    if ([string]::IsNullOrWhiteSpace($owner))
+    {
+        Write-Error "No owner specified and no 'githubUser' set in your config file"
         return
     }
 
@@ -17,11 +23,11 @@ function global:cloneall()
         return
     }
 
-    gh repo list jsmrcina --limit 999 --json name --jq ".[]|.name" |
+    gh repo list $owner --limit 999 --json name --jq ".[]|.name" |
         ForEach-Object {
-            if(Test-Path "$global:gitFolderPath\$_")
+            if(Test-Path (Join-Path $global:gitFolderPath $_))
             {
-                Write-Host "$_ is already cloned" -ForegroundColor Blue 
+                Write-Host "$_ is already cloned" -ForegroundColor Blue
             }
             else
             {

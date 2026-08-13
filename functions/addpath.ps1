@@ -1,8 +1,17 @@
-function addpath
+# Adds a folder to PATH for this session and, by default, persists it by adding
+# it to the "extraPaths" array of the config file this machine is using so that
+# path.ps1 picks it up on every subsequent shell.
+#
+# -Machine (Windows only) writes to the machine-wide PATH environment variable
+# instead, which is the pre-Linux behaviour of this function. It needs elevation.
+
+function global:addpath
 {
     param
     (
-        [string] $newPath
+        [Parameter(Mandatory=$true)]
+        [string] $newPath,
+        [switch] $Machine
     )
 
     if (-not (Test-Path $newPath))
@@ -11,29 +20,62 @@ function addpath
         return
     }
 
-    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    $newPath = (Resolve-Path $newPath).Path
 
-    if (-not $isAdmin)
+    if ($Machine)
     {
-        Start-Process powershell -ArgumentList "-NoExit -NoProfile -Command `"& { addpath -NewPath `'$NewPath`' }`"" -Verb RunAs
+        if (-not (Test-WindowsOnly "-Machine"))
+        {
+            return
+        }
+
+        if (-not (Test-IsElevated))
+        {
+            Start-Process pwsh -ArgumentList "-NoExit -NoProfile -Command `"& { addpath -newPath `'$newPath`' -Machine }`"" -Verb RunAs
+            return
+        }
+
+        $currentPath = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+
+        if ($currentPath -split $global:pathSep -contains $newPath)
+        {
+            Write-Error "The path is already in the machine PATH environment variable."
+            return
+        }
+
+        [System.Environment]::SetEnvironmentVariable('Path', $currentPath + $global:pathSep + $newPath, [System.EnvironmentVariableTarget]::Machine)
+        $env:PATH = $env:PATH + $global:pathSep + $newPath
+
+        Write-Host -ForegroundColor Green "Machine PATH updated successfully."
         return
     }
 
-    $currentPath = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+    # Session
+    Add-PathVariable $newPath
 
-    if ($currentPath -split ';' -contains $newPath)
+    # Persist into the config file for this machine
+    if ([string]::IsNullOrWhiteSpace($global:developerConfigFile) -or -not (Test-Path $global:developerConfigFile))
     {
-        Write-Error "The path is already in the PATH environment variable."
+        Write-Warning "No config file loaded, added to this session only."
         return
     }
 
-    $updatedPath = $currentPath + ";" + $newPath
+    $config = Get-Content -Path $global:developerConfigFile -Raw | ConvertFrom-Json
 
-    [System.Environment]::SetEnvironmentVariable('Path', $updatedPath, [System.EnvironmentVariableTarget]::Machine)
+    $existing = @()
+    if ($config.PSObject.Properties.Name -contains 'extraPaths')
+    {
+        $existing = @($config.extraPaths)
+    }
 
-    $sessionPath = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Process)
-    $sessionPath = $sessionPath + ";" + $newPath
-    [System.Environment]::SetEnvironmentVariable('Path', $sessionPath, [System.EnvironmentVariableTarget]::Process)
+    if ($existing -contains $newPath)
+    {
+        Write-Host -ForegroundColor Blue "$newPath is already in extraPaths."
+        return
+    }
 
-    Write-Console -ForegroundColor Green "Path updated successfully."
+    $config | Add-Member -MemberType NoteProperty -Name 'extraPaths' -Value ($existing + $newPath) -Force
+    $config | ConvertTo-Json -Depth 10 | Set-Content -Path $global:developerConfigFile
+
+    Write-Host -ForegroundColor Green "Added $newPath to $global:developerConfigFile."
 }

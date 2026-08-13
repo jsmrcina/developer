@@ -1,1 +1,1 @@
-$global:developerConfigFile = "$PSScriptRoot\laptop_config.json"
+$global:developerConfigFile = Join-Path $PSScriptRoot 'laptop_config.json'

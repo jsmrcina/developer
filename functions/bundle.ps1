@@ -31,11 +31,10 @@ function global:bundle([string]$repourl)
 
     cd ..
     $bundleFolderName = ($projectName + "-bundle")
-    mkdir $bundleFolderName
+    New-Item -ItemType Directory -Path $bundleFolderName | Out-Null
     cd $bundleFolderName
     git init --bare
-    $barePath = (Get-Location).Path.Replace("\", "/")
-    $fileUrl = "file:///$barePath"
+    $fileUrl = ConvertTo-FileUrl (Get-Location).Path
 
     cd ..
     cd $mirrorName

@@ -1,7 +1,6 @@
 {
-    "pathSep": ";",
-    "developerFolderPath": "D:\\Git\\developer",
     "gitFolderPath": "D:\\git",
     "mainBranchName": "main",
-    "vimPath": "C:\\Program Files\\Vim\\vim91\\gvim.exe"
+    "githubUser": "jsmrcina",
+    "editorPath": "C:\\Program Files\\Vim\\vim91"
 }

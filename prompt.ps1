@@ -1,13 +1,9 @@
 function prompt
 {
-    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = [Security.Principal.WindowsPrincipal] $identity
-    $adminRole = [Security.Principal.WindowsBuiltInRole]::Administrator
-
     $gitBranch = ''
     try
     {
-        $gitDir = git rev-parse --show-toplevel 2>$null
+        git rev-parse --show-toplevel 2>$null | Out-Null
         if ($LASTEXITCODE -eq 0)
         {
             $branch = git rev-parse --abbrev-ref HEAD
@@ -21,5 +17,8 @@ function prompt
     $newline = [System.Environment]::NewLine
     $location = Get-Location
 
-    return $newline + $gitBranch + $newline + $location + $newline + $(if ($principal.IsInRole($adminRole)) { 'A ' } else { '' }) + '>> '
+    # 'A' marks an elevated session (Administrator on Windows, root elsewhere)
+    $elevatedMarker = if (Test-IsElevated) { 'A ' } else { '' }
+
+    return $newline + $gitBranch + $newline + $location + $newline + $elevatedMarker + '>> '
 }

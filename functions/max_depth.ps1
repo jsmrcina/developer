@@ -1,17 +1,18 @@
-# Creates a branch locally and remotely
+# Finds the most deeply nested subfolder under a path
 
 function global:max_depth($path)
 {
     $max = -1
     $deepestSubfolder = ""
-    Get-ChildItem -Recurse $path | % {
-        $path = Resolve-Path $_.FullName -Relative
-        $cur = (($path.ToCharArray() | Where-Object { $_ -eq '\' } | Measure-Object).Count)
+
+    Get-ChildItem -Recurse $path | ForEach-Object {
+        $relative = Resolve-Path $_.FullName -Relative
+        $cur = (($relative.ToCharArray() | Where-Object { $_ -eq $global:dirSep } | Measure-Object).Count)
 
         if($cur -gt $max)
         {
             $max = $cur
-            $deepestSubfolder = $path
+            $deepestSubfolder = $relative
         }
     }
 

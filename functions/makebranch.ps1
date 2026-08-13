@@ -8,7 +8,7 @@ function global:makebranch([string]$branchName, [bool]$fromMain = $false)
 
     if($fromMain)
     {
-        git checkout -b $fullBranchName origin/main
+        git checkout -b $fullBranchName "origin/$global:officialBranch"
     }
     else
     {

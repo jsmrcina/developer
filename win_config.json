@@ -1,5 +1,5 @@
 {
-    "pathSep": ";",
-    "developerFolderPath": "D:\\git\\developer",
-    "gitFolderPath": "D:\\Documents\\git"
+    "gitFolderPath": "D:\\Documents\\git",
+    "mainBranchName": "main",
+    "githubUser": "jsmrcina"
 }

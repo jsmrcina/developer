@@ -11,9 +11,11 @@ Function Add-PathVariable {
 
     if (Test-Path $addPath)
     {
+        # Drop any existing entry for this path (with or without a trailing
+        # separator) before re-appending it, so PATH never accumulates dupes.
         $regexAddPath = [regex]::Escape($addPath)
-        $arrPath = $ENV:PATH -split $pathSep | Where-Object {$_ -notMatch "^$regexAddPath\\?"}
-        $ENV:PATH = ($arrPath + $addPath) -join $pathSep
+        $arrPath = $ENV:PATH -split $global:pathSep | Where-Object {$_ -notMatch "^$regexAddPath[\\/]?$"}
+        $ENV:PATH = ($arrPath + $addPath) -join $global:pathSep
     }
 }
 
@@ -21,7 +23,7 @@ function Set-VariableFromArgument {
     param (
         [Parameter(Mandatory=$true)]
         [string]$Name,
-        
+
         [Parameter(Mandatory=$true)]
         [object]$Value
     )
@@ -29,16 +31,29 @@ function Set-VariableFromArgument {
     Set-Variable -Name $Name -Value $Value -Scope Global
 }
 
-## Sublime
-## TODO: Move path to non-checked in config file
+# Tool paths from the config file. Anything not defined for this machine is
+# skipped, so a config only needs the entries that actually apply to it.
 Add-PathVariable $editorPath
 Add-PathVariable $githubClPath
 Add-PathVariable $godotPath
 Add-PathVariable $dotnetPath
 
-Set-VariableFromArgument -Name "officialBranch" -Value $mainBranchName
-
-if($developerUnrealPath -ne $null)
+# Arbitrary extra entries, so a machine can add paths without editing this file
+foreach ($extraPath in $global:extraPaths)
 {
-  Set-VariableFromArgument -Name "developerUnrealPath" -Value $developerUnrealPath
+    Add-PathVariable $extraPath
+}
+
+if ($null -ne $mainBranchName)
+{
+    Set-VariableFromArgument -Name "officialBranch" -Value $mainBranchName
+}
+else
+{
+    Set-VariableFromArgument -Name "officialBranch" -Value "main"
+}
+
+if ($null -ne $developerUnrealPath)
+{
+    Set-VariableFromArgument -Name "developerUnrealPath" -Value $developerUnrealPath
 }

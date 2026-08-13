@@ -3,12 +3,13 @@ Function CdToGit { Set-Location -Path $global:gitFolderPath}
 Set-Alias -Name cdgit -Value CdToGit
 
 # Private Aliases
-if (Test-Path -Path "$PSScriptRoot\p_aliases.ps1") {
-    . "$PSScriptRoot\p_aliases.ps1"
+$privateAliases = Join-Path $PSScriptRoot 'p_aliases.ps1'
+if (Test-Path -Path $privateAliases) {
+    . $privateAliases
 }
 
 # Global variables
-$global:developer_dir = Split-Path $MyInvocation.MyCommand.Path
+$global:developer_dir = $PSScriptRoot
 
 ## Git aliases
 git config --global alias.s status
@@ -17,7 +18,7 @@ git config --global alias.cm '!f() { git commit -m "$1"; }; f'
 git config --global alias.cf '!f() { git commit --fixup "$1" -m "$2"; }; f'
 git config --global alias.chm '!f() { git checkout -b "$1" origin/main --no-track; }; f'
 git config --global alias.a add
-git config --global alias.aa '!f() { git add *; }; f'
+git config --global alias.aa 'add --all'
 git config --global alias.rb rebase
 git config --global alias.rom '!f() { git fetch; git rebase origin/main; }; f'
 git config --global alias.p push
