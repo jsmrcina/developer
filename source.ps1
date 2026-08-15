@@ -12,6 +12,7 @@ $global:developerFolderPath = $PSScriptRoot
 . (Join-Path $PSScriptRoot 'config.ps1')
 . (Join-Path $PSScriptRoot 'path.ps1')
 . (Join-Path $PSScriptRoot 'prompt.ps1')
+. (Join-Path $PSScriptRoot 'keybindings.ps1')
 
 $global:dev_functions = @()
 $global:pdev_functions = @()
