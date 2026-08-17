@@ -12,7 +12,14 @@ $global:developerFolderPath = $PSScriptRoot
 . (Join-Path $PSScriptRoot 'config.ps1')
 . (Join-Path $PSScriptRoot 'path.ps1')
 . (Join-Path $PSScriptRoot 'prompt.ps1')
-. (Join-Path $PSScriptRoot 'keybindings.ps1')
+
+# Everything in keybindings.ps1 restores editing and history behavior that
+# PSReadLine's Windows edit mode already binds for us, and PSReadLine only
+# falls back to Emacs edit mode off Windows, so the file is dead weight there.
+if ($global:isLinuxPlatform)
+{
+    . (Join-Path $PSScriptRoot 'keybindings.ps1')
+}
 
 $global:dev_functions = @()
 $global:pdev_functions = @()
