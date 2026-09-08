@@ -16,7 +16,15 @@ Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
 ## does if it emits the sequence PSReadLine expects: 0x08 for Ctrl+Backspace,
 ## ESC[3;5~ for Ctrl+Delete, ESC[1;5D / ESC[1;5C for Ctrl+Left / Ctrl+Right.
 ## Most terminals send all but Ctrl+Backspace, which usually needs configuring
-## (for alacritty, see the Back/Control binding in alacritty.toml).
+## (for alacritty, that is the Back/Control binding in
+## terminal/alacritty-keybindings.toml, which alacritty.toml has to import).
+
+## Windows-style Escape. In Windows edit mode Escape throws away whatever is
+## on the line; in Emacs mode it is the Meta prefix instead, so the key does
+## nothing on its own here. Binding it directly replaces that prefix, and the
+## Escape,<key> chords it served (Escape,b, Escape,d, ...) are all bound as
+## Alt+<key> as well, so nothing is actually lost.
+Set-PSReadLineKeyHandler -Chord 'Escape' -Function RevertLine
 
 ## Windows-style history recall on the function keys. PSReadLine defaults to
 ## Emacs edit mode everywhere except Windows, which leaves F8 unbound; in

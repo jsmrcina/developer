@@ -1,0 +1,34 @@
+## Terminal-side half of the key bindings. keybindings.ps1 sets up the shell
+## side, but a binding only reaches PSReadLine if the terminal emits the escape
+## sequence it expects, and a few of these alacritty does not send by default.
+##
+## Imported by alacritty.toml rather than living in it, so the bindings travel
+## between machines while fonts, colors and the shell path stay local to each.
+## See "Terminal key bindings" in the README for the import line.
+
+[mouse]
+bindings = [
+{ mouse = "Middle", mods = "None", action = "PasteSelection" },
+]
+
+[keyboard]
+bindings = [
+{ key = "Paste", mods = "None", action = "Paste" },
+{ key = "Copy", mods = "None", action = "Copy" },
+{ key = "L", mods = "Control", action = "ClearLogNotice" },
+{ key = "L", mods = "Control", mode = "~Vi", chars = "\f" },
+{ key = "PageUp", mods = "Shift", mode = "~Alt", action = "ScrollPageUp" },
+{ key = "PageDown", mods = "Shift", mode = "~Alt", action = "ScrollPageDown" },
+{ key = "Home", mods = "Shift", mode = "~Alt", action = "ScrollToTop" },
+{ key = "End", mods = "Shift", mode = "~Alt", action = "ScrollToBottom" },
+{ key = "V", mods = "Control|Shift", action = "Paste" },
+{ key = "C", mods = "Control|Shift", action = "Copy" },
+{ key = "F", mods = "Control|Shift", action = "SearchForward" },
+{ key = "B", mods = "Control|Shift", action = "SearchBackward" },
+{ key = "C", mods = "Control|Shift", mode = "Vi", action = "ClearSelection" },
+{ key = "Key0", mods = "Control", action = "ResetFontSize" },
+# Ctrl+Backspace sends a plain DEL by default, so the shell cannot tell it
+# apart from Backspace. Send 0x08, which PSReadLine reads as Ctrl+Backspace.
+{ key = "Back", mods = "Control", chars = "\u0008" },
+{ key = "Return", mods = "Shift", chars = "\u001B\r" },
+]

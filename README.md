@@ -47,6 +47,54 @@ Paste in:
 
 e.g. `C:\Users\jsmrc\Documents\Git\developer\source.ps1`
 
+# Terminal key bindings
+
+Key bindings come in two halves and both need to be set up on a new machine.
+
+`keybindings.ps1` is the shell half (PSReadLine). It is sourced only on Linux and
+macOS, because it exists to restore what PSReadLine's Windows edit mode already
+binds: off Windows PSReadLine falls back to Emacs edit mode, which leaves these
+keys doing something else or nothing at all.
+
+| Key | Does |
+| --- | --- |
+| `Ctrl+Backspace` / `Ctrl+Delete` | Delete the previous / next word |
+| `Ctrl+Left` / `Ctrl+Right` | Move a whole word |
+| `Escape` | Throw away the current line |
+| `F8` / `Shift+F8` | Walk history for entries starting with what is typed |
+| `F7` | History picker, rebuilt on `fzf` (falls back to `F8` without it) |
+
+`terminal/alacritty-keybindings.toml` is the terminal half. A shell binding only
+fires if the terminal sends the sequence PSReadLine expects, and alacritty does
+not send `Ctrl+Backspace` (0x08) on its own, so that file has to be imported for
+`Ctrl+Backspace` above to work at all. It also carries copy/paste, scrollback,
+search, middle-click paste, and the `Shift+Enter` sequence Claude Code reads as a
+newline instead of a submit.
+
+Import it from the machine's own `~/.config/alacritty/alacritty.toml`, which
+keeps fonts, colors and the shell path local while the bindings stay shared:
+
+```toml
+[general]
+import = ["/home/jsmrcina/Documents/git/developer/terminal/alacritty-keybindings.toml"]
+```
+
+Two things to watch:
+
+- **The path must be absolute.** Alacritty does not expand `~` in an import, and
+  it fails silently: the terminal starts fine and the bindings simply are not
+  there. `alacritty -vv -e true 2>&1 | head` lists every config file it actually
+  loaded, so check the import shows up in that list.
+- **A local `[keyboard] bindings` array adds to these, it does not replace
+  them.** Alacritty appends bindings across the import and the importing file,
+  and the later definition wins for a given key, so a machine can override a
+  single binding locally without losing the rest. Anything meant for every
+  machine still belongs in this file.
+
+`.vimrc` is the third half, if vim is in the picture: it sources `mswin.vim` for
+Windows-style Ctrl+C/V/X and shifted-arrow selection, plus Tab / Shift+Tab to
+indent a visual block.
+
 # Config file format
 
 All keys are optional except `gitFolderPath`.
