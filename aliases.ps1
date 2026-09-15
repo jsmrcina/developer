@@ -2,6 +2,18 @@
 Function CdToGit { Set-Location -Path $global:gitFolderPath}
 Set-Alias -Name cdgit -Value CdToGit
 
+if (-not $global:isWindowsPlatform) {
+    # dc [path] - open path (default: current directory) in Double Commander, detached from the terminal
+    Function OpenDoubleCommander {
+        param([string]$Path = (Get-Location).ProviderPath)
+        $resolved = (Resolve-Path -LiteralPath $Path -ErrorAction Stop).ProviderPath
+        # sh does the redirect: a pwsh-side redirect pipes DC's output and pwsh blocks until DC exits.
+        # DC's OnlyOneAppInstance hands the path to the running instance as a new tab.
+        & sh -c 'setsid -f doublecmd -T "$1" >/dev/null 2>&1' sh $resolved
+    }
+    Set-Alias -Name dc -Value OpenDoubleCommander
+}
+
 # Private Aliases
 $privateAliases = Join-Path $PSScriptRoot 'p_aliases.ps1'
 if (Test-Path -Path $privateAliases) {
