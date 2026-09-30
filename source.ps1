@@ -33,15 +33,22 @@ $after = (Get-Command -CommandType Function).Name
 $newFunctions = $after | Where-Object { $before -notcontains $_ }
 $global:dev_functions += $newFunctions
 
-$privateFunctionPath = Join-Path $PSScriptRoot 'pfunctions'
-if (Test-Path $privateFunctionPath)
-{
-  $before = (Get-Command -CommandType Function).Name
-  Get-ChildItem $privateFunctionPath -Filter *.ps1 | ForEach-Object {
-          . $_.FullName
-  }
-  $after = (Get-Command -CommandType Function).Name
+$privateFunctionPaths = @(
+  (Join-Path $PSScriptRoot 'pfunctions')
+  (Join-Path (Split-Path $PSScriptRoot -Parent) 'p_developer\functions')
+)
 
-  $newFunctions = $after | Where-Object { $before -notcontains $_ }
-  $global:pdev_functions += $newFunctions
+foreach ($privateFunctionPath in $privateFunctionPaths)
+{
+  if (Test-Path $privateFunctionPath)
+  {
+    $before = (Get-Command -CommandType Function).Name
+    Get-ChildItem $privateFunctionPath -Filter *.ps1 | ForEach-Object {
+            . $_.FullName
+    }
+    $after = (Get-Command -CommandType Function).Name
+
+    $newFunctions = $after | Where-Object { $before -notcontains $_ }
+    $global:pdev_functions += $newFunctions
+  }
 }

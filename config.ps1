@@ -60,3 +60,9 @@ else
 {
     git config --global core.autocrlf input
 }
+
+$personalConfig = Join-Path (Split-Path -Parent $PSScriptRoot) 'p_developer\p_config.ps1'
+if (Test-Path -LiteralPath $personalConfig)
+{
+    . $personalConfig
+}
